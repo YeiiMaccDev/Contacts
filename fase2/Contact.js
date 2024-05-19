@@ -1,18 +1,8 @@
-const validateEmail = (email) => {
-    if (!email) {
-        throw new Error(`Email no puede ser vacio`);
-    }
-
-    if (!email.includes('@')) {
-        throw new Error(`Email no contiene @ en su estructura`);
-    }
-};
-
 
 class Contact {
     constructor(name, email, cellphone) {
         // Validar el correo electrónico antes de asignarlo
-        validateEmail(email);
+        this.validateEmail(email);
 
         this.name = name;
         this.email = email;
@@ -29,7 +19,7 @@ class Contact {
 
     set setEmail(email) {
         // Validar el correo electrónico antes de asignarlo
-        validateEmail(email);
+        this.validateEmail(email);
         this.email = email;
     }
 
@@ -48,58 +38,99 @@ class Contact {
     contactDetails() {
         console.log(`Contacto ${this.name} , email: ${this.email}, cellphone: ${this.cellphone}`);
     }
+
+    validateEmail(email) {
+        if (!email) {
+            throw new Error(`Email no puede ser vacio`);
+        }
+
+        if (!email.includes('@')) {
+            throw new Error(`Email no contiene @ en su estructura`);
+        }
+    }
 }
 
 
-// Crear contactos
-const contact1 = new Contact('Yeison Macias', 'yeiimaccdev@gmail.com', '3209362334');
-const contact2 = new Contact('Marco Dubbeld', 'marcoDubbled@gmail.com', '3235957695');
-
-
-// Contacto 1
-console.log('---- Datos contacto n1 ----')
-contact1.contactDetails();
-
-// Actualizar nombre del contacto 1
-contact1.setName = 'Yesion Macias Buitrago';
-console.log(`Nombre ajustado: ${contact1.getName}`);
-console.log(" ")
-
-
-// Contacto 2
-console.log('---- Datos contacto n2 ----')
-contact2.contactDetails();
-
-// Actualizar telefono del contacto 2
-contact2.setCellphone = '3017590424';
-console.log(`Telefono ajustado: ${contact2.getCellphone}`);
 
 
 
+class ContactService {
+    constructor() {
+        this.contacts = new Map();
+    }
 
+    // Crea nuevo contacto con una instancia y lo almacena en la lista.
+    createContact(name, email, cellphone) {
+        const contact = new Contact(name, email, cellphone);
+        this.contacts.set(email, contact);
+    }
 
-console.log(" ")
-console.log('-----> Lista de contactos <----')
+    // iterar la lista de contactos e imprimir los detalles de cada uno.
+    listContacts() {
+        this.contacts.values().forEach(contact => {
+            contact.contactDetails();
+        });
+    }
 
-// Lista de contactos
-const contacts = new Map();
+    // Modificar datos del usuario id(email)
+    modifyContact(id, attribute, newValue) {
+        const contact = this.contacts.get(id);
+        if (!contact) {
+            throw new Error(`Contacto con el email ${id} no encontrado`);
+        }
 
-// Agregar nuevos contactos a la lista
-const addContactToList = (contact) => {
-    contacts.set(contact.email, contact);
+        switch (attribute) {
+            case 'name':
+                contact.setName = newValue;
+                break;
+            case 'email':
+                contact.setEmail = newValue;
+                break;
+            case 'cellphone':
+                contact.setCellphone = newValue;
+                break;
+
+            default:
+                throw new Error(`Atributo ${attribute} no encontrado`);
+                break;
+        }
+
+    }
+
+    // Mostar los detalles de un usuario filtrado por id(email)
+    showContactDetails(id) {
+        const contact = this.contacts.get(id);
+        if (contact) {
+            contact.contactDetails();
+        } else {
+            throw new Error(`Contacto con email ${id} no encontrado`);
+        }
+    }
 }
 
 
-// lIstar los usuarios en la lista actual
-const listContacts = () => {
-    contacts.values().forEach((contact) => {
-        contact.contactDetails();
-    });  
-}
 
-// Agregar los contactos a la lista
-addContactToList(contact1);
-addContactToList(contact2);
 
-// Listar contactos
-listContacts();
+
+// Crea una instancia de ContactService
+const contactService = new ContactService();
+
+// Crear contactos usando
+//  Id natural del contacto es el correo electronico(email)
+contactService.createContact('Yeison Macias', 'yeiimaccdev@gmail.com', '3209362334');
+contactService.createContact('Marco Dubbeld', 'marcoDubbled@gmail.com', '3235957695');
+
+// Mostrar lista de contactos
+console.log("----> Lista de contactos <----");
+contactService.listContacts();
+
+// Modificar un contacto usando
+contactService.modifyContact('yeiimaccdev@gmail.com', 'name', 'Yeison Macias Buitrago');
+contactService.modifyContact('marcoDubbled@gmail.com', 'cellphone', '3017590424');
+
+// Mostrar detalles de un contacto usando
+console.log("\nMostrando detalles del contacto modificado");
+contactService.showContactDetails('yeiimaccdev@gmail.com');
+
+console.log("\nMostrando detalles de un contacto modificado");
+contactService.showContactDetails('marcoDubbled@gmail.com');
