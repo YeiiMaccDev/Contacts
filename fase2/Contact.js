@@ -75,25 +75,20 @@ class ContactService {
     // Modificar datos del usuario id(email)
     modifyContact(id, attribute, newValue) {
         const contact = this.contacts.get(id);
+        // Validar que el contacto existe
         if (!contact) {
             throw new Error(`Contacto con el email ${id} no encontrado`);
         }
 
-        switch (attribute) {
-            case 'name':
-                contact.setName = newValue;
-                break;
-            case 'email':
-                contact.setEmail = newValue;
-                break;
-            case 'cellphone':
-                contact.setCellphone = newValue;
-                break;
-
-            default:
-                throw new Error(`Atributo ${attribute} no encontrado`);
-                break;
+        // Validar que el atributo a modificar existe
+        if (typeof contact[attribute] === 'undefined') {
+            throw new Error(`El atributo ${attribute} no encontrado.`);
         }
+
+        // Construir dinámicamente el nombre de la función setter en base del atributo a modificar.
+        const setterFuntion = `set${attribute.charAt(0).toUpperCase()}${attribute.slice(1)}`;
+        // Actualizar el nuevo valor del atributo
+        contact[setterFuntion] = newValue;
 
     }
 
@@ -134,3 +129,7 @@ contactService.showContactDetails('yeiimaccdev@gmail.com');
 
 console.log("\nMostrando detalles de un contacto modificado");
 contactService.showContactDetails('marcoDubbled@gmail.com');
+
+// Generar error al modificar un atributo que no existe o está mal escrito.:
+console.log("\n ---> Generar error al modificar un atributo que no existe o está mal escrito.")
+contactService.modifyContact('yeiimaccdev@gmail.com', 'lastName', 'Macias');
