@@ -67,7 +67,7 @@ class ContactService {
 
     // iterar la lista de contactos e imprimir los detalles de cada uno.
     listContacts() {
-        this.contacts.values().forEach(contact => {
+        Array.from(this.contacts.values()).forEach(contact => {
             contact.contactDetails();
         });
     }
